@@ -3,7 +3,7 @@ from langchain_openai import ChatOpenAI
 import os
 from dotenv import load_dotenv
 from ..helper.state import PipelineState
-from ..helper.util import call_llm
+from ..helper.utils import call_llm
 
 PARSER_SYSTEM = """
 You are a product requirement parser. 

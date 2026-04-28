@@ -1,5 +1,6 @@
 from langchain_openai import ChatOpenAI
-from state import PipelineState
+from ..helper.state import PipelineState
+from ..helper.utils import call_llm
 import os
 from dotenv import load_dotenv
 
@@ -45,7 +46,7 @@ def reviewer(state: PipelineState) -> PipelineState:
  
         prompt = f"Product: {name}\n\nReview data:\n{snippet_text}"
         try:
-            signal = call_llm_json(REVIEWER_SYSTEM, prompt)
+            signal = call_llm(REVIEWER_SYSTEM, prompt)
             signals.append(signal)
             print(f"  → Analyzed: {name}")
         except Exception as e:
