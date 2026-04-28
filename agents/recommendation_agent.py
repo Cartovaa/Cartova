@@ -1,6 +1,7 @@
 from langchain_openai import ChatOpenAI
-from ..helper.state import PipelineState
-from ..helper.utils import call_llm
+from helper.state import PipelineState
+from helper.utils import call_llm
+from langchain_core.callbacks.streaming_stdout import StreamingStdOutCallbackHandler
 import json
 import os
 from dotenv import load_dotenv
@@ -31,6 +32,8 @@ llm = ChatOpenAI(
     base_url="https://integrate.api.nvidia.com/v1",
     api_key=os.getenv("NVIDIA_API_KEY"),
     temperature=0.2,
+    streaming=True,
+    callbacks=[StreamingStdOutCallbackHandler()],
 )
 
 

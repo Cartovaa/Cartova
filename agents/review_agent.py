@@ -1,6 +1,7 @@
 from langchain_openai import ChatOpenAI
-from ..helper.state import PipelineState
-from ..helper.utils import call_llm
+from helper.state import PipelineState
+from helper.utils import call_llm
+from langchain_core.callbacks.streaming_stdout import StreamingStdOutCallbackHandler
 import os
 from dotenv import load_dotenv
 
@@ -26,6 +27,8 @@ llm = ChatOpenAI(
     base_url="https://integrate.api.nvidia.com/v1",
     api_key=os.getenv("NVIDIA_API_KEY"),
     temperature=0.2,
+    streaming=True,
+    callbacks=[StreamingStdOutCallbackHandler()],
 )
 
 def reviewer(state: PipelineState) -> PipelineState:
@@ -46,7 +49,7 @@ def reviewer(state: PipelineState) -> PipelineState:
  
         prompt = f"Product: {name}\n\nReview data:\n{snippet_text}"
         try:
-            signal = call_llm(REVIEWER_SYSTEM, prompt)
+            signal = call_llm(llm, REVIEWER_SYSTEM, prompt)
             signals.append(signal)
             print(f"  → Analyzed: {name}")
         except Exception as e:

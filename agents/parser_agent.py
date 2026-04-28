@@ -1,10 +1,11 @@
-from flask import json
 from langchain_openai import ChatOpenAI
 import json
 import os
 from dotenv import load_dotenv
-from ..helper.state import PipelineState
-from ..helper.utils import call_llm
+from helper.state import PipelineState
+from helper.utils import call_llm
+from langchain_core.callbacks.streaming_stdout import StreamingStdOutCallbackHandler
+
 
 PARSER_SYSTEM = """
 You are a product requirement parser. 
@@ -35,10 +36,12 @@ llm = ChatOpenAI(
     base_url="https://integrate.api.nvidia.com/v1",
     api_key=os.getenv("NVIDIA_API_KEY"),
     temperature=0.2,
+    streaming=True,
+    callbacks=[StreamingStdOutCallbackHandler()],
 )
 
 def parser(state: PipelineState) -> PipelineState:
     print("\n[Agent 1 — Parser] Parsing query...")
-    spec = call_llm(PARSER_SYSTEM, state["user_query"])
+    spec = call_llm(llm, PARSER_SYSTEM, state["user_query"])
     print(f"  → Spec: {json.dumps(spec, indent=2)}")
     return {**state, "parsed_spec": spec}
