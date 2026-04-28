@@ -1,5 +1,6 @@
 from langchain_openai import ChatOpenAI
-from ..utils import call_llm
+from ..helper.state import PipelineState
+from ..helper.util import call_llm
 import os
 from dotenv import load_dotenv
 
@@ -26,12 +27,20 @@ If a spec is missing, set it to null. Do NOT invent values.
 """
 
 llm = ChatOpenAI(
-    model="meta/llama-3.1-70b-instruct",
+    model="abacusai/dracarys-llama-3.1-70b-instruct",
     base_url="https://integrate.api.nvidia.com/v1",
     api_key=os.getenv("NVIDIA_API_KEY"),
     temperature=0.2,
 )
 
-def comparator():
-    recommendation = call_llm(llm, COMPARATOR_SYSTEM, prompt)
-
+def comparator(state: PipelineState) -> PipelineState:
+    print("\n[Agent 3 — Comparator] Normalizing spec table...")
+    listings_text = "\n\n".join([
+        f"Title: {r.get('title','')}\nURL: {r.get('url','')}\nSnippet: {r.get('content','')}"
+        for r in (state["raw_listings"] or [])[:15]  # cap at 15 to stay within context
+    ])
+    table = call_llm(COMPARATOR_SYSTEM, listings_text)
+    if isinstance(table, dict):
+        table = [table]
+    print(f"  → Normalized {len(table)} products")
+    return {**state, "normalized_table": table}
