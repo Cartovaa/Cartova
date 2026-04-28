@@ -10,3 +10,4 @@ llm = ChatOpenAI(
     api_key=os.getenv("NVIDIA_API_KEY"),
     temperature=0.2,
 )
+
